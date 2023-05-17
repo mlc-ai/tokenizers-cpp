@@ -1,0 +1,4 @@
+src/tokenizers_binding.js
+build
+node_modules
+dist

@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+Cargo.lock
+package-lock.json
+rust/target

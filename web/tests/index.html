@@ -1,0 +1,61 @@
+<html>
+  <!DOCTYPE html>
+  <head lang="en-US"></head>
+    <title>Tokenizer Test Page</title>
+  </head>
+
+  <script>
+    var tvmjsGlobalEnv = {};
+  </script>
+  <script type="module">
+    import { Tokenizer } from './index.js';
+
+    async function tokenizerFromJSON(jsonArrayBuffer) {
+      return await Tokenizer.fromJSON(jsonArrayBuffer);
+    }
+    async function tokenizerFromSentencePiece(modelBuffer) {
+      return await Tokenizer.fromSentencePiece(modelBuffer);
+    }
+    tvmjsGlobalEnv.tokenizerFromJSON = tokenizerFromJSON;
+    tvmjsGlobalEnv.tokenizerFromSentencePiece = tokenizerFromSentencePiece;
+  </script>
+  <script>
+    async function testJSONTokenizer() {
+      console.log("JSON Tokenizer");
+      const jsonBuffer = await (await
+        fetch("https://huggingface.co/openai/clip-vit-large-patch14/raw/main/tokenizer.json")
+      ).arrayBuffer();
+      const tok = await tvmjsGlobalEnv.tokenizerFromJSON(jsonBuffer);
+      let text = "What is the capital of Canada?";
+      let ids = tok.encode(text);
+      console.log("ids=" + ids)
+      let decodedText = tok.decode(ids);
+      console.log("decoded=" + decodedText);
+    }
+
+    async function testLlamaTokenizer() {
+      console.log("Llama Tokenizer");
+      const modelBuffer = await (await
+        fetch("https://huggingface.co/hongyij/web-llm-test-model/resolve/main/tokenizer.model")
+      ).arrayBuffer();
+      const tok = await tvmjsGlobalEnv.tokenizerFromSentencePiece(modelBuffer);
+      let text = "What is the capital of Canada?";
+      let ids = tok.encode(text);
+      console.log("ids=" + ids)
+      let decodedText = tok.decode(ids);
+      console.log("decoded=" + decodedText);
+    }
+
+    async function testMain() {
+      await testJSONTokenizer();
+      await testLlamaTokenizer();
+    }
+
+    testMain()
+  </script>
+  <body>
+    <h2>Tokenizer Test Page</h2>
+    Open console to see output
+    <div id="log"></div>
+  </body>
+</html>
