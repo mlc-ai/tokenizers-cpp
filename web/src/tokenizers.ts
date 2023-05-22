@@ -1,6 +1,6 @@
 import Module from "./tokenizers_binding"
 
-var binding: any = null;
+let binding: any = null;
 
 async function asyncInitTokenizers() {
   if (binding == null) {
@@ -35,8 +35,8 @@ export class Tokenizer {
    * @returns The output tokens
    */
   encode(text: string): Int32Array {
-    let ids = this.handle.Encode(text);
-    let arr = binding.vecIntToView(ids).slice();
+    const ids = this.handle.Encode(text);
+    const arr = binding.vecIntToView(ids).slice();
     ids.delete();
     return arr;
   }
@@ -48,8 +48,8 @@ export class Tokenizer {
    * @returns The decoded string.
    */
   decode(ids: Int32Array): string {
-    let vec = binding.vecIntFromJSArray(ids);
-    let res = this.handle.Decode(vec).slice();
+    const vec = binding.vecIntFromJSArray(ids);
+    const res = this.handle.Decode(vec).slice();
     vec.delete();
     return res;
   }
@@ -76,7 +76,7 @@ export class Tokenizer {
   static async fromByteLevelBPE(
       vocab: ArrayBuffer,
       merges: ArrayBuffer,
-      addedTokens: string =""
+      addedTokens = ""
   ) : Promise<Tokenizer> {
       await asyncInitTokenizers();
       return new Tokenizer(
