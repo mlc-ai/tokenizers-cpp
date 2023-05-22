@@ -1,13 +1,26 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { wasm } from '@rollup/plugin-wasm';
-import typescript from '@rollup/plugin-typescript';
+import typescript from 'rollup-plugin-typescript2'
 
 export default {
     input: 'src/index.ts',
-    output: {
-        dir: 'dist',
-        format: 'es'
-    },
-    plugins: [nodeResolve({ browser: true }), commonjs(), wasm(), typescript({ target: "es2017", downlevelIteration: true })]
+    output: [
+        {
+            file: 'lib/index.js',
+            exports: 'named',
+            name: 'tokenizers',
+            format: 'umd',
+            sourcemap: true
+        }
+    ],
+    plugins: [
+        nodeResolve({ browser: true }),
+        commonjs(),
+        wasm(),
+        typescript({
+            rollupCommonJSResolveHack: false,
+            clean: true
+        })
+    ]
 };
