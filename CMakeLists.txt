@@ -7,17 +7,20 @@ set(TOKENIZERS_CPP_CARGO_TARGET "")
 
 # extra link libraries
 set(TOKENIZERS_CPP_LINK_LIBS "")
+set(TOKENIZERS_C_LINK_LIBS "")
 set(CARGO_EXTRA_ENVS "")
 message(STATUS "system-name" ${CMAKE_SYSTEM_NAME})
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  list(APPEND TOKENIZERS_C_LINK_LIBS ${CMAKE_DL_LIBS})
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(TOKENIZERS_CPP_CARGO_TARGET wasm32-unknown-emscripten)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
   set(TOKENIZERS_CPP_CARGO_TARGET aarch64-apple-ios)
   # add extra dependency needed for rust tokenizer in iOS
   find_library(FOUNDATION_LIB Foundation)
   find_library(SECURITY_LIB Security)
-  list(APPEND TOKENIZERS_CPP_LINK_LIBS ${FOUNDATION_LIB} ${SECURITY_LIB})
+  list(APPEND TOKENIZERS_C_LINK_LIBS ${FOUNDATION_LIB} ${SECURITY_LIB})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
     set(TOKENIZERS_CPP_CARGO_TARGET aarch64-apple-darwin)
@@ -34,7 +37,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 if(WIN32)
-  list(APPEND TOKENIZERS_CPP_LINK_LIBS
+  list(APPEND TOKENIZERS_C_LINK_LIBS
     wsock32 ws2_32 Bcrypt
     iphlpapi userenv psapi
   )
@@ -107,7 +110,7 @@ endif()
 add_subdirectory(sentencepiece sentencepiece EXCLUDE_FROM_ALL)
 
 add_library(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB})
-target_link_libraries(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB})
+target_link_libraries(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB} ${TOKENIZERS_C_LINK_LIBS})
 
 add_library(tokenizers_cpp STATIC $<TARGET_OBJECTS:tokenizer_cpp_objs>)
 target_link_libraries(tokenizers_cpp PRIVATE tokenizers_c sentencepiece-static ${TOKENIZERS_CPP_LINK_LIBS})
