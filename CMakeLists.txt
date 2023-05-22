@@ -20,7 +20,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
   # add extra dependency needed for rust tokenizer in iOS
   find_library(FOUNDATION_LIB Foundation)
   find_library(SECURITY_LIB Security)
-  list(APPEND TOKENIZERS_CPP_LINK_LIBS ${FOUNDATION_LIB} ${SECURITY_LIB})
+  list(APPEND TOKENIZERS_C_LINK_LIBS ${FOUNDATION_LIB} ${SECURITY_LIB})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
     set(TOKENIZERS_CPP_CARGO_TARGET aarch64-apple-darwin)
@@ -37,7 +37,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 if(WIN32)
-  list(APPEND TOKENIZERS_CPP_LINK_LIBS
+  list(APPEND TOKENIZERS_C_LINK_LIBS
     wsock32 ws2_32 Bcrypt
     iphlpapi userenv psapi
   )
