@@ -5,3 +5,4 @@ dist
 lib
 .cache
 .vscode
+.parcel-cache

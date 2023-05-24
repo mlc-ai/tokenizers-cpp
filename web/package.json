@@ -1,9 +1,10 @@
 {
   "name": "@mlc-ai/web-tokenizers",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "./build.sh; rollup -c",
     "lint": "npx eslint ."
