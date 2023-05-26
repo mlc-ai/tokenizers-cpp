@@ -24,7 +24,7 @@ You also need to turn on `c++17` support.
 - First, you need to make sure you have rust installed.
 - If you are cross-compiling make sure you install the necessary target in rust.
   For example, run `rustup target add aarch64-apple-ios` to install iOS target.
-- You can then link the libary
+- You can then link the library
 
 See [example](example) folder for an example CMake project.
 
