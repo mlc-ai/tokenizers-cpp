@@ -38,7 +38,7 @@ endif()
 
 if(WIN32)
   list(APPEND TOKENIZERS_C_LINK_LIBS
-    wsock32 ws2_32 Bcrypt
+    ntdll wsock32 ws2_32 Bcrypt
     iphlpapi userenv psapi
   )
 endif()
