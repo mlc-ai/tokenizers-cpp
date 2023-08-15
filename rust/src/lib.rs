@@ -89,7 +89,7 @@ impl TokenizerWrapper {
         );
     }
 
-    pub fn decode(&mut self, ids: Vec<u32>, skip_special_tokens: bool) {
+    pub fn decode(&mut self, ids: &[u32], skip_special_tokens: bool) {
         self.decode_str = self.tokenizer.decode(ids, skip_special_tokens).unwrap();
     }
 }
@@ -162,7 +162,7 @@ extern "C" fn tokenizers_decode(
     skip_special_tokens: i32,
 ) {
     unsafe {
-        let input_data = Vec::from(std::slice::from_raw_parts(input_ids, len));
+        let input_data = std::slice::from_raw_parts(input_ids, len);
         (*handle).decode(input_data, skip_special_tokens != 0);
     }
 }
