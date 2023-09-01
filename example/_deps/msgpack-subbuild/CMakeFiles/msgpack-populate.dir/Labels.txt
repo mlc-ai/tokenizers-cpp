@@ -1,0 +1,14 @@
+# Target labels
+ msgpack-populate
+# Source files and their labels
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/CMakeFiles/msgpack-populate
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/CMakeFiles/msgpack-populate.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/CMakeFiles/msgpack-populate-complete.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-build.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-configure.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-download.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-install.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-mkdir.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-patch.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-test.rule
+/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-update.rule

@@ -70,7 +70,24 @@ void HuggingFaceTokenizerExample() {
   std::cout << "decode=\"" << decoded_prompt << "\"" << std::endl;
 }
 
+// RWKV world tokenizer
+// - dist/tokenizer_model
+void RWKVWorldTokenizerExample() {
+  auto tok = Tokenizer::FromBlobRwkvWorld("dist/tokenizer_model");
+  std::string prompt = "What is the capital of Canada?";
+  // call Encode to turn prompt into token ids
+  std::vector<int> ids = tok->Encode(prompt);
+  // call Decode to turn ids into string
+  std::string decoded_prompt = tok->Decode(ids);
+
+  // print encoded result
+  std::cout << "RWKV World tokenizer: " << std::endl;
+  PrintEncodeResult(ids);
+  std::cout << "decode=\"" << decoded_prompt << "\"" << std::endl;
+}
+
 int main(int argc, char* argv[]) {
   SentencePieceTokenizerExample();
   HuggingFaceTokenizerExample();
+  RWKVWorldTokenizerExample();
 }

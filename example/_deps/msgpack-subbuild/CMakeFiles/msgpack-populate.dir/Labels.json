@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/CMakeFiles/msgpack-populate"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/CMakeFiles/msgpack-populate.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/CMakeFiles/msgpack-populate-complete.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-build.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-configure.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-download.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-install.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-mkdir.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-patch.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-test.rule"
+		},
+		{
+			"file" : "/data/shared/public/cangshui/bbuf/tokenizers-cpp/example/_deps/msgpack-subbuild/msgpack-populate-prefix/src/msgpack-populate-stamp/msgpack-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"msgpack-populate"
+		],
+		"name" : "msgpack-populate"
+	}
+}
