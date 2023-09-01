@@ -94,7 +94,7 @@ class RWKVWorldTokenizer : public Tokenizer {
   RWKVWorldToolTokenizer rwkv_world_tokenizer_;
 };
 
-std::unique_ptr<Tokenizer> Tokenizer::FromBlobRwkvWorld(const std::string& model_blob) {
+std::unique_ptr<Tokenizer> Tokenizer::FromBlobRWKVWorld(const std::string& model_blob) {
   return std::make_unique<RWKVWorldTokenizer>(model_blob);
 }
 

@@ -73,7 +73,7 @@ void HuggingFaceTokenizerExample() {
 // RWKV world tokenizer
 // - dist/tokenizer_model
 void RWKVWorldTokenizerExample() {
-  auto tok = Tokenizer::FromBlobRwkvWorld("dist/tokenizer_model");
+  auto tok = Tokenizer::FromBlobRWKVWorld("dist/tokenizer_model");
   std::string prompt = "What is the capital of Canada?";
   // call Encode to turn prompt into token ids
   std::vector<int> ids = tok->Encode(prompt);

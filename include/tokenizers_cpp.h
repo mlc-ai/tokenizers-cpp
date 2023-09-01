@@ -72,7 +72,7 @@ class Tokenizer {
    * \param model_blob The blob that contains vocabs.
    * \return The created tokenizer.
    */
-  static std::unique_ptr<Tokenizer> FromBlobRwkvWorld(const std::string& model_blob);
+  static std::unique_ptr<Tokenizer> FromBlobRWKVWorld(const std::string& model_blob);
 };
 
 }  // namespace tokenizers
