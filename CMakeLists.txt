@@ -77,13 +77,7 @@ endif ()
 get_filename_component(TOKENIZERS_CPP_ROOT ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
 set(TOKENIZERS_CPP_CARGO_SOURCE_PATH ${TOKENIZERS_CPP_ROOT}/rust)
 
-FetchContent_Declare(
-        msgpack
-        GIT_REPOSITORY https://github.com/msgpack/msgpack-c
-        GIT_TAG cpp-6.1.0
-        )
-option(MSGPACK_USE_BOOST "" OFF)
-FetchContent_MakeAvailable(msgpack)
+add_subdirectory(msgpack)
 
 if(MSVC)
   set(TOKENIZERS_RUST_LIB "${TOKENIZERS_CPP_CARGO_BINARY_DIR}/tokenizers_c.lib")
@@ -115,6 +109,7 @@ set(
 )
 add_library(tokenizer_cpp_objs OBJECT ${TOKENIZER_CPP_SRCS})
 target_include_directories(tokenizer_cpp_objs PRIVATE sentencepiece/src)
+target_include_directories(tokenizer_cpp_objs PRIVATE msgpack/include)
 target_include_directories(tokenizer_cpp_objs PUBLIC ${TOKENIZERS_CPP_INCLUDE})
 target_link_libraries(tokenizer_cpp_objs PRIVATE msgpack-cxx)
 
