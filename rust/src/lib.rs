@@ -81,12 +81,9 @@ impl TokenizerWrapper {
     }
 
     pub fn encode(&mut self, text: &str, add_special_tokens: bool) {
-        self.encode_ids = Vec::from(
-            self.tokenizer
-                .encode(text, add_special_tokens)
-                .unwrap()
-                .get_ids(),
-        );
+        let encoded = self.tokenizer.encode(text, add_special_tokens).unwrap();
+        self.encode_ids.resize(encoded.len(), 0);
+        self.encode_ids.copy_from_slice(encoded.get_ids());
     }
 
     pub fn decode(&mut self, ids: &[u32], skip_special_tokens: bool) {
