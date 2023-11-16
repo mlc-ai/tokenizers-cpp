@@ -77,6 +77,7 @@ endif ()
 get_filename_component(TOKENIZERS_CPP_ROOT ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
 set(TOKENIZERS_CPP_CARGO_SOURCE_PATH ${TOKENIZERS_CPP_ROOT}/rust)
 
+option(MSGPACK_USE_BOOST "Use Boost libraried" OFF)
 add_subdirectory(msgpack)
 
 if(MSVC)
