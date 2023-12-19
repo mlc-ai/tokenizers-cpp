@@ -10,8 +10,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
-#include <vector>
 
 #define STRINGIFY(...) STRINGIFY_(__VA_ARGS__)
 #define STRINGIFY_(...) #__VA_ARGS__
