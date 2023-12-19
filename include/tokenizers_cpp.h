@@ -36,6 +36,22 @@ class Tokenizer {
    */
   virtual std::string Decode(const std::vector<int32_t>& ids) = 0;
 
+  /*!
+   * \brief Returns the vocabulary size. Special tokens are considered.
+   */
+  virtual size_t GetVocabSize() = 0;
+
+  /*!
+   * \brief Convert the given id to its corresponding token if it exists. If not, return an
+   * empty string.
+   */
+  virtual std::string IdToToken(int32_t token_id) = 0;
+
+  /*!
+   * \brief Convert the given token to its corresponding id if it exists. If not, return -1.
+   */
+  virtual int32_t TokenToId(const std::string& token) = 0;
+
   //---------------------------------------------------
   // Factory functions from byte-blobs
   // These factory function takes in in-memory blobs

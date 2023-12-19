@@ -3,9 +3,10 @@
  * \file sentencepiece_tokenizer.cc
  * \brief Sentencepice tokenizer
  */
+#include <sentencepiece_processor.h>
 #include <tokenizers_cpp.h>
 
-#include "sentencepiece_processor.h"
+#include <cassert>
 
 namespace tokenizers {
 
@@ -26,6 +27,16 @@ class SentencePieceTokenizer : public Tokenizer {
     sentence_piece_.Decode(ids, &text).IgnoreError();
     return text;
   }
+
+  size_t GetVocabSize() final {
+    auto size = sentence_piece_.GetPieceSize();
+    assert(size > 0);
+    return size;
+  }
+
+  std::string IdToToken(int32_t id) final { return sentence_piece_.IdToPiece(id); }
+
+  int32_t TokenToId(const std::string& token) final { return sentence_piece_.PieceToId(token); }
 
  private:
   // the tokenizer
