@@ -9,6 +9,7 @@ pub struct TokenizerWrapper {
     tokenizer: Tokenizer,
     encode_ids: Vec<u32>,
     decode_str: String,
+    id_to_token_result: String,
 }
 
 pub type Vocab = HashMap<String, u32>;
@@ -20,6 +21,7 @@ impl TokenizerWrapper {
             tokenizer: Tokenizer::from_str(json).unwrap().into(),
             encode_ids: Vec::new(),
             decode_str: String::new(),
+            id_to_token_result: String::new(),
         }
     }
 
@@ -77,6 +79,7 @@ impl TokenizerWrapper {
             tokenizer: tokenizer,
             encode_ids: Vec::new(),
             decode_str: String::new(),
+            id_to_token_result: String::new(),
         }
     }
 
@@ -180,5 +183,48 @@ extern "C" fn tokenizers_get_decode_str(
 extern "C" fn tokenizers_free(wrapper: *mut TokenizerWrapper) {
     unsafe {
         drop(Box::from_raw(wrapper));
+    }
+}
+
+#[no_mangle]
+extern "C" fn tokenizers_get_vocab_size(handle: *mut TokenizerWrapper, size: *mut usize) {
+    unsafe {
+        *size = (*handle).tokenizer.get_vocab_size(true);
+    }
+}
+
+#[no_mangle]
+extern "C" fn tokenizers_id_to_token(
+    handle: *mut TokenizerWrapper,
+    id: u32,
+    out_cstr: *mut *mut u8,
+    out_len: *mut usize,
+) {
+    unsafe {
+        let str = (*handle).tokenizer.id_to_token(id);
+        (*handle).id_to_token_result = match str {
+            Some(s) => s,
+            None => String::from(""),
+        };
+
+        *out_cstr = (*handle).id_to_token_result.as_mut_ptr();
+        *out_len = (*handle).id_to_token_result.len();
+    }
+}
+
+#[no_mangle]
+extern "C" fn tokenizers_token_to_id(
+    handle: *mut TokenizerWrapper,
+    token: *const u8,
+    len: usize,
+    out_id: *mut i32,
+) {
+    unsafe {
+        let token: &str = std::str::from_utf8(std::slice::from_raw_parts(token, len)).unwrap();
+        let id = (*handle).tokenizer.token_to_id(token);
+        *out_id = match id {
+            Some(id) => id as i32,
+            None => -1,
+        };
     }
 }
