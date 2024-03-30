@@ -55,6 +55,27 @@ export class Tokenizer {
   }
 
   /**
+   * Returns the vocabulary size. Special tokens are considered.
+   *
+   * @returns Vocab size.
+   */
+  getVocabSize(): number {
+    const res = this.handle.GetVocabSize();
+    return res;
+  }
+
+  /**
+   * Convert the given id to its corresponding token if it exists. If not, return an empty string.
+   *
+   * @param id the input id.
+   * @returns The decoded string.
+   */
+  idToToken(id: number): string {
+    const res = this.handle.IdToToken(id).slice();
+    return res;
+  }
+
+  /**
    * Create a tokenizer from jsonArrayBuffer
    *
    * @param json The input array buffer that contains json text.
@@ -74,13 +95,13 @@ export class Tokenizer {
    * @returns The tokenizer
    */
   static async fromByteLevelBPE(
-      vocab: ArrayBuffer,
-      merges: ArrayBuffer,
-      addedTokens = ""
-  ) : Promise<Tokenizer> {
-      await asyncInitTokenizers();
-      return new Tokenizer(
-        binding.Tokenizer.FromBlobByteLevelBPE(vocab, merges, addedTokens));
+    vocab: ArrayBuffer,
+    merges: ArrayBuffer,
+    addedTokens = ""
+  ): Promise<Tokenizer> {
+    await asyncInitTokenizers();
+    return new Tokenizer(
+      binding.Tokenizer.FromBlobByteLevelBPE(vocab, merges, addedTokens));
   }
 
   /**
@@ -89,9 +110,9 @@ export class Tokenizer {
    * @param model The model blob.
    * @returns The tokenizer
    */
-   static async fromSentencePiece(model: ArrayBuffer) : Promise<Tokenizer> {
+  static async fromSentencePiece(model: ArrayBuffer): Promise<Tokenizer> {
     await asyncInitTokenizers();
-      return new Tokenizer(
-        binding.Tokenizer.FromBlobSentencePiece(model));
+    return new Tokenizer(
+      binding.Tokenizer.FromBlobSentencePiece(model));
   }
 }
