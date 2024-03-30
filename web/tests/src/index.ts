@@ -12,12 +12,27 @@ async function testJSONTokenizer() {
   console.log("ids=" + ids)
   const decodedText = tok.decode(ids);
   console.log("decoded=" + decodedText);
+
+  const vocabSize = tok.getVocabSize();
+  console.log("vocabSize=" + vocabSize);
+
+  const tok0 = tok.idToToken(0);
+  console.log("tok0=" + tok0);
+  if (tok0 !== "!") {
+    throw Error("Expect token 0 to be !");
+  }
+
+  const tok49407 = tok.idToToken(49407);
+  console.log("tok49407=" + tok49407);
+  if (tok49407 !== "<|endoftext|>") {
+    throw Error("Expect token 49407 to be <|endoftext|>");
+  }
 }
 
 async function testLlamaTokenizer() {
   console.log("Llama Tokenizer");
   const modelBuffer = await (await
-      fetch("https://huggingface.co/hongyij/web-llm-test-model/resolve/main/tokenizer.model")
+    fetch("https://huggingface.co/hongyij/web-llm-test-model/resolve/main/tokenizer.model")
   ).arrayBuffer();
   const tok = await Tokenizer.fromSentencePiece(modelBuffer);
   const text = "What is the capital of Canada?";
@@ -25,6 +40,12 @@ async function testLlamaTokenizer() {
   console.log("ids=" + ids)
   const decodedText = tok.decode(ids);
   console.log("decoded=" + decodedText);
+
+  const vocabSize = tok.getVocabSize();
+  console.log("vocabSize=" + vocabSize);
+  if (vocabSize !== 32000) {
+    throw Error("Expect Llama to have vocab size 32000");
+  }
 }
 
 async function main() {

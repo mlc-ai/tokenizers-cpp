@@ -21,5 +21,7 @@ EMSCRIPTEN_BINDINGS(tokenizers) {
       .class_function("FromBlobByteLevelBPE", &tokenizers::Tokenizer::FromBlobByteLevelBPE)
       .class_function("FromBlobSentencePiece", &tokenizers::Tokenizer::FromBlobSentencePiece)
       .function("Encode", &tokenizers::Tokenizer::Encode)
-      .function("Decode", &tokenizers::Tokenizer::Decode);
+      .function("Decode", &tokenizers::Tokenizer::Decode)
+      .function("GetVocabSize", &tokenizers::Tokenizer::GetVocabSize)
+      .function("IdToToken", &tokenizers::Tokenizer::IdToToken);
 }
