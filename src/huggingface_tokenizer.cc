@@ -27,9 +27,8 @@ class HFTokenizer : public Tokenizer {
   }
 
   // use i32 to be consistent with sentencepiece
-  std::vector<int32_t> Encode(const std::string& text) final {
-    bool add_special_token = false;
-    tokenizers_encode(handle_, text.data(), text.length(), static_cast<int>(add_special_token));
+  std::vector<int32_t> Encode(const std::string& text, bool add_special_tokens) {
+    tokenizers_encode(handle_, text.data(), text.length(), static_cast<int>(add_special_tokens));
     const uint32_t* data;
     size_t len;
     tokenizers_get_encode_ids(handle_, &data, &len);
@@ -39,14 +38,22 @@ class HFTokenizer : public Tokenizer {
   }
 
   // use i32 to be consistent with sentencepiece
-  std::string Decode(const std::vector<int32_t>& ids) final {
-    bool skip_special_token = false;
+  std::vector<int32_t> Encode(const std::string& text) final {
+    return Encode(text, false);
+  }
+
+  // use i32 to be consistent with sentencepiece
+  std::string Decode(const std::vector<int32_t>& ids, bool skip_special_tokens) {
     tokenizers_decode(handle_, reinterpret_cast<const uint32_t*>(ids.data()), ids.size(),
-                      static_cast<int>(skip_special_token));
+                      static_cast<int>(skip_special_tokens));
     const char* data;
     size_t len;
     tokenizers_get_decode_str(handle_, &data, &len);
     return std::string(data, len);
+  }
+
+  std::string Decode(const std::vector<int32_t>& ids) final {
+    return Decode(ids, false);
   }
 
   size_t GetVocabSize() final {
