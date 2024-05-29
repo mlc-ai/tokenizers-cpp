@@ -30,6 +30,21 @@ class Tokenizer {
   virtual std::vector<int32_t> Encode(const std::string& text) = 0;
 
   /*!
+   * \brief Encode a batch of texts into ids.
+   * \param texts The input texts.
+   * \returns The encoded token ids.
+   */
+  virtual std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts) {
+    // Fall back when the derived class does not implement this function.
+    std::vector<std::vector<int32_t>> ret;
+    ret.reserve(texts.size());
+    for (const auto& text : texts) {
+      ret.push_back(Encode(text));
+    }
+    return ret;
+  }
+
+  /*!
    * \brief Decode token ids into text.
    * \param text The token ids.
    * \returns The decoded text.

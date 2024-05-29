@@ -28,18 +28,44 @@ class HFTokenizer : public Tokenizer {
 
   // use i32 to be consistent with sentencepiece
   std::vector<int32_t> Encode(const std::string& text, bool add_special_tokens) {
-    tokenizers_encode(handle_, text.data(), text.length(), static_cast<int>(add_special_tokens));
-    const uint32_t* data;
-    size_t len;
-    tokenizers_get_encode_ids(handle_, &data, &len);
-    const int32_t* data_i32 = reinterpret_cast<const int32_t*>(data);
-    auto res = std::vector<int32_t>(data_i32, data_i32 + len);
-    return res;
+    TokenizerEncodeResult result;
+    tokenizers_encode(handle_, text.data(), text.length(), static_cast<int>(add_special_tokens),
+                      &result);
+    std::vector<int32_t> ret(result.token_ids, result.token_ids + result.len);
+    tokenizers_free_encode_results(&result, 1);
+    return ret;
   }
 
-  // use i32 to be consistent with sentencepiece
-  std::vector<int32_t> Encode(const std::string& text) final {
-    return Encode(text, false);
+   // use i32 to be consistent with sentencepiece
+   std::vector<int32_t> Encode(const std::string& text) final {
+     return Encode(text, false);
+   }
+
+  std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts, bool add_special_tokens) final {
+    std::vector<const char*> texts_raw;
+    std::vector<size_t> seq_lens;
+    size_t num_seqs = texts.size();
+    texts_raw.reserve(num_seqs);
+    seq_lens.reserve(num_seqs);
+    for (const auto& text : texts) {
+      texts_raw.push_back(text.data());
+      seq_lens.push_back(text.length());
+    }
+    std::vector<TokenizerEncodeResult> results(num_seqs);
+    tokenizers_encode_batch(handle_, texts_raw.data(), seq_lens.data(), texts.size(),
+                            static_cast<int>(add_special_tokens), results.data());
+    std::vector<std::vector<int32_t>> ret;
+    ret.reserve(texts.size());
+    for (size_t i = 0; i < texts.size(); ++i) {
+      ret.push_back(
+          std::vector<int32_t>(results[i].token_ids, results[i].token_ids + results[i].len));
+    }
+    tokenizers_free_encode_results(results.data(), texts.size());
+    return ret;
+  }
+
+  std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts) final {
+    return EncodeBatch(texts, false);
   }
 
   // use i32 to be consistent with sentencepiece
