@@ -7,7 +7,6 @@ use tokenizers::tokenizer::Tokenizer;
 
 pub struct TokenizerWrapper {
     tokenizer: Tokenizer,
-    encode_ids: Vec<u32>,
     decode_str: String,
     id_to_token_result: String,
 }
@@ -15,11 +14,16 @@ pub struct TokenizerWrapper {
 pub type Vocab = HashMap<String, u32>;
 pub type Merges = Vec<(String, String)>;
 
+#[repr(C)]
+pub struct TokenizerEncodeResult {
+    token_ids: *mut u32,
+    len: usize,
+}
+
 impl TokenizerWrapper {
     pub fn from_str(json: &str) -> TokenizerWrapper {
         TokenizerWrapper {
             tokenizer: Tokenizer::from_str(json).unwrap().into(),
-            encode_ids: Vec::new(),
             decode_str: String::new(),
             id_to_token_result: String::new(),
         }
@@ -77,16 +81,22 @@ impl TokenizerWrapper {
             .with_decoder(byte_level);
         TokenizerWrapper {
             tokenizer: tokenizer,
-            encode_ids: Vec::new(),
             decode_str: String::new(),
             id_to_token_result: String::new(),
         }
     }
 
-    pub fn encode(&mut self, text: &str, add_special_tokens: bool) {
+    pub fn encode(&mut self, text: &str, add_special_tokens: bool) -> Vec<u32> {
         let encoded = self.tokenizer.encode(text, add_special_tokens).unwrap();
-        self.encode_ids.resize(encoded.len(), 0);
-        self.encode_ids.copy_from_slice(encoded.get_ids());
+        return encoded.get_ids().to_vec();
+    }
+
+    pub fn encode_batch(&mut self, texts: Vec<&str>, add_special_tokens: bool) -> Vec<Vec<u32>> {
+        let results = self.tokenizer.encode_batch(texts, add_special_tokens).unwrap()
+            .into_iter()
+            .map(|encoded| encoded.get_ids().to_vec())
+            .collect::<Vec<Vec<u32>>>();
+        return results;
     }
 
     pub fn decode(&mut self, ids: &[u32], skip_special_tokens: bool) {
@@ -135,22 +145,53 @@ extern "C" fn tokenizers_encode(
     input_cstr: *const u8,
     len: usize,
     add_special_tokens: i32,
+    out_result: *mut TokenizerEncodeResult,
 ) {
     unsafe {
         let input_data = std::str::from_utf8(std::slice::from_raw_parts(input_cstr, len)).unwrap();
-        (*handle).encode(input_data, add_special_tokens != 0);
+        let encoded = (*handle).encode(input_data, add_special_tokens != 0);
+        let len = encoded.len();
+        *out_result = TokenizerEncodeResult {
+            token_ids: Box::into_raw(encoded.into_boxed_slice()) as *mut u32,
+            len: len,
+        };
     }
 }
 
 #[no_mangle]
-extern "C" fn tokenizers_get_encode_ids(
+extern "C" fn tokenizers_encode_batch(
     handle: *mut TokenizerWrapper,
-    out_data: *mut *mut u32,
-    out_len: *mut usize,
+    input_cstr: *const *const u8,
+    input_len: *const usize,
+    num_seqs: usize,
+    add_special_tokens: i32,
+    out_result: *mut TokenizerEncodeResult,
 ) {
     unsafe {
-        *out_data = (*handle).encode_ids.as_mut_ptr();
-        *out_len = (*handle).encode_ids.len()
+        let input_data = (0..num_seqs)
+            .map(|i| {
+                std::str::from_utf8(std::slice::from_raw_parts(*input_cstr.offset(i as isize), *input_len.offset(i as isize))).unwrap()
+            })
+            .collect::<Vec<&str>>();
+        let encoded_batch = (*handle).encode_batch(input_data, add_special_tokens != 0);
+        for (i, encoded) in encoded_batch.into_iter().enumerate() {
+            let len = encoded.len();
+            let result = TokenizerEncodeResult {
+                token_ids: Box::into_raw(encoded.into_boxed_slice()) as *mut u32,
+                len: len,
+            };
+            *out_result.offset(i as isize) = result;
+        }
+    }
+}
+
+#[no_mangle]
+extern "C" fn tokenizers_free_encode_results(results: *mut TokenizerEncodeResult, num_seqs: usize) {
+    unsafe {
+        let slice = std::slice::from_raw_parts_mut(results, num_seqs);
+        for result in &mut *slice {
+            drop(Box::from_raw(std::slice::from_raw_parts_mut(result.token_ids, result.len)));
+        }
     }
 }
 
