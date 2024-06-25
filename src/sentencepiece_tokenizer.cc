@@ -10,6 +10,7 @@
 
 namespace tokenizers {
 
+#ifdef MLC_ENABLE_SENTENCEPIECE_TOKENIZER
 class SentencePieceTokenizer : public Tokenizer {
  public:
   explicit SentencePieceTokenizer(const std::string& model_blob) {
@@ -46,4 +47,11 @@ class SentencePieceTokenizer : public Tokenizer {
 std::unique_ptr<Tokenizer> Tokenizer::FromBlobSentencePiece(const std::string& model_blob) {
   return std::make_unique<SentencePieceTokenizer>(model_blob);
 }
+#else
+std::unique_ptr<Tokenizer> Tokenizer::FromBlobSentencePiece(const std::string& model_blob) {
+  assert(false);
+  throw;
+}
+#endif  // MLC_ENABLE_SENTENCEPIECE_TOKENIZER
+
 }  // namespace tokenizers
