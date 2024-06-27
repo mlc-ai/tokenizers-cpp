@@ -88,6 +88,8 @@ set(TOKENIZERS_CPP_CARGO_SOURCE_PATH ${TOKENIZERS_CPP_ROOT}/rust)
 option(MSGPACK_USE_BOOST "Use Boost libraried" OFF)
 add_subdirectory(msgpack)
 
+option(MLC_ENABLE_SENTENCEPIECE_TOKENIZER "Enable SentencePiece tokenizer" OFF)
+
 if(MSVC)
   set(TOKENIZERS_RUST_LIB "${TOKENIZERS_CPP_CARGO_BINARY_DIR}/tokenizers_c.lib")
 else()
@@ -120,6 +122,9 @@ add_library(tokenizer_cpp_objs OBJECT ${TOKENIZER_CPP_SRCS})
 target_include_directories(tokenizer_cpp_objs PRIVATE sentencepiece/src)
 target_include_directories(tokenizer_cpp_objs PRIVATE msgpack/include)
 target_include_directories(tokenizer_cpp_objs PUBLIC ${TOKENIZERS_CPP_INCLUDE})
+if (MLC_ENABLE_SENTENCEPIECE_TOKENIZER STREQUAL "ON")
+  target_compile_definitions(tokenizer_cpp_objs PUBLIC MLC_ENABLE_SENTENCEPIECE_TOKENIZER)
+endif ()
 target_link_libraries(tokenizer_cpp_objs PRIVATE msgpack-cxx)
 
 # sentencepiece config
