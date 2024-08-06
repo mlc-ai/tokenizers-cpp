@@ -37,7 +37,13 @@ class SentencePieceTokenizer : public Tokenizer {
 
   std::string IdToToken(int32_t id) final { return sentence_piece_.IdToPiece(id); }
 
-  int32_t TokenToId(const std::string& token) final { return sentence_piece_.PieceToId(token); }
+  int32_t TokenToId(const std::string& token) final {
+    int32_t id = sentence_piece_.PieceToId(token);
+    if (id == sentence_piece_.unk_id()) {
+      return -1;
+    }
+    return id;
+  }
 
  private:
   // the tokenizer
