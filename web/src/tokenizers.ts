@@ -76,6 +76,17 @@ export class Tokenizer {
   }
 
   /**
+   * Convert the given token to its corresponding id if it exists. If not, return -1.
+   *
+   * @param token the input token string.
+   * @returns The encoded token id.
+   */
+  tokenToId(token: string): number {
+    const id = this.handle.TokenToId(token.slice());
+    return id;
+  }
+
+  /**
    * Create a tokenizer from jsonArrayBuffer
    *
    * @param json The input array buffer that contains json text.

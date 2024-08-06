@@ -27,6 +27,18 @@ async function testJSONTokenizer() {
   if (tok49407 !== "<|endoftext|>") {
     throw Error("Expect token 49407 to be <|endoftext|>");
   }
+
+  const id0 = tok.tokenToId("!");
+  console.log("id0=" + id0);
+  if (id0 !== 0) {
+    throw Error("Expect token 0 to be !");
+  }
+
+  const id49407 = tok.tokenToId("<|endoftext|>");
+  console.log("id49407=" + id49407);
+  if (id49407 !== 49407) {
+    throw Error("Expect token 49407 to be <|endoftext|>");
+  }
 }
 
 async function testLlamaTokenizer() {
