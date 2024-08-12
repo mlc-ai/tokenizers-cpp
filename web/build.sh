@@ -5,7 +5,7 @@ rustup target add wasm32-unknown-emscripten
 
 mkdir -p build
 cd build
-emcmake cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-O3"
+emcmake cmake ../.. -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-O3 -DCOMPILE_WASM_RUNTIME"
 emmake make tokenizers_cpp tokenizers_c sentencepiece-static -j8
 cd ..
 

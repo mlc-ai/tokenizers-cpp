@@ -48,8 +48,21 @@ async function testLlamaTokenizer() {
   }
 }
 
+// Without COMPILE_WASM_RUNTIME, this triggers parallel processing, leading to error
+async function testBertTokenizer() {
+  console.log("Bert Tokenizer");
+  const modelBuffer = await (await
+    fetch("https://huggingface.co/Snowflake/snowflake-arctic-embed-l/raw/main/tokenizer.json")
+  ).arrayBuffer();
+  const tok = await Tokenizer.fromJSON(modelBuffer);
+  const text = "What is the capital of Canada?";
+  const ids = tok.encode(text);
+  console.log(ids);
+}
+
 async function main() {
   await testJSONTokenizer()
+  await testBertTokenizer();
   await testLlamaTokenizer()
 }
 

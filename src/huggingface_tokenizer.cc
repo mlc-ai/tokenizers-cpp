@@ -15,7 +15,11 @@ namespace tokenizers {
  */
 class HFTokenizer : public Tokenizer {
  public:
-  explicit HFTokenizer(TokenizerHandle handle) : handle_(handle) {}
+  explicit HFTokenizer(TokenizerHandle handle) : handle_(handle) {
+    #ifdef COMPILE_WASM_RUNTIME
+    setenv("TOKENIZERS_PARALLELISM", "false", true);
+    #endif
+  }
 
   HFTokenizer(const HFTokenizer&) = delete;
   HFTokenizer(HFTokenizer&& other) { std::swap(other.handle_, handle_); }
