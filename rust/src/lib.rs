@@ -107,7 +107,7 @@ impl TokenizerWrapper {
 #[no_mangle]
 extern "C" fn tokenizers_new_from_str(input_cstr: *const u8, len: usize) -> *mut TokenizerWrapper {
     unsafe {
-        let json = std::str::from_utf8(std::slice::from_raw_parts(input_cstr, len)).unwrap();
+        let json = &String::from_utf8_lossy(std::slice::from_raw_parts(input_cstr, len));
         return Box::into_raw(Box::new(TokenizerWrapper::from_str(json)));
     }
 }
@@ -123,14 +123,13 @@ extern "C" fn byte_level_bpe_tokenizers_new_from_str(
 ) -> *mut TokenizerWrapper {
     unsafe {
         let vocab =
-            std::str::from_utf8(std::slice::from_raw_parts(input_vocab_str, len_vocab)).unwrap();
+            &String::from_utf8_lossy(std::slice::from_raw_parts(input_vocab_str, len_vocab));
         let merges =
-            std::str::from_utf8(std::slice::from_raw_parts(input_merges_str, len_merges)).unwrap();
-        let added_tokens = std::str::from_utf8(std::slice::from_raw_parts(
+            &String::from_utf8_lossy(std::slice::from_raw_parts(input_merges_str, len_merges));
+        let added_tokens = &String::from_utf8_lossy(std::slice::from_raw_parts(
             input_added_tokens_str,
             len_added_tokens,
-        ))
-        .unwrap();
+        ));
         return Box::into_raw(Box::new(TokenizerWrapper::byte_level_bpe_from_str(
             vocab,
             merges,
@@ -261,7 +260,7 @@ extern "C" fn tokenizers_token_to_id(
     out_id: *mut i32,
 ) {
     unsafe {
-        let token: &str = std::str::from_utf8(std::slice::from_raw_parts(token, len)).unwrap();
+        let token: &str = &String::from_utf8_lossy(std::slice::from_raw_parts(token, len));
         let id = (*handle).tokenizer.token_to_id(token);
         *out_id = match id {
             Some(id) => id as i32,
