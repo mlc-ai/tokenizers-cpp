@@ -147,7 +147,7 @@ extern "C" fn tokenizers_encode(
     out_result: *mut TokenizerEncodeResult,
 ) {
     unsafe {
-        let input_data = &String::from_utf8_lossy(std::slice::from_raw_parts(input_cstr, len));
+        let input_data = std::str::from_utf8(std::slice::from_raw_parts(input_cstr, len)).unwrap();
         let encoded = (*handle).encode(input_data, add_special_tokens != 0);
         let len = encoded.len();
         *out_result = TokenizerEncodeResult {
@@ -169,12 +169,10 @@ extern "C" fn tokenizers_encode_batch(
     unsafe {
         let input_data = (0..num_seqs)
             .map(|i| {
-                let slice = std::slice::from_raw_parts(*input_cstr.offset(i as isize), *input_len.offset(i as isize));
-                String::from_utf8_lossy(slice).to_string()
+                std::str::from_utf8(std::slice::from_raw_parts(*input_cstr.offset(i as isize), *input_len.offset(i as isize))).unwrap()
             })
-            .collect::<Vec<String>>();
-        let input_data_refs: Vec<&str> = input_data.iter().map(|s| s.as_str()).collect();
-        let encoded_batch = (*handle).encode_batch(input_data_refs, add_special_tokens != 0);
+            .collect::<Vec<&str>>();
+        let encoded_batch = (*handle).encode_batch(input_data, add_special_tokens != 0);
         for (i, encoded) in encoded_batch.into_iter().enumerate() {
             let len = encoded.len();
             let result = TokenizerEncodeResult {
