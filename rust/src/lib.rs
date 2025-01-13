@@ -77,8 +77,8 @@ impl TokenizerWrapper {
         );
         let mut tokenizer = Tokenizer::new(BPE::new(vocab, merges));
         tokenizer
-            .with_pre_tokenizer(byte_level)
-            .with_decoder(byte_level);
+            .with_pre_tokenizer(Some(byte_level))
+            .with_decoder(Some(byte_level));
         TokenizerWrapper {
             tokenizer: tokenizer,
             decode_str: String::new(),
