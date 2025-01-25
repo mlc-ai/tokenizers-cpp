@@ -106,5 +106,47 @@ class Tokenizer {
   static std::unique_ptr<Tokenizer> FromBlobRWKVWorld(const std::string& model_blob);
 };
 
+#include <tokenizers_c.h>
+
+class HFTokenizer : public Tokenizer {
+ public:
+  explicit HFTokenizer(TokenizerHandle handle) : handle_(handle) {
+#ifdef COMPILE_WASM_RUNTIME
+    setenv("TOKENIZERS_PARALLELISM", "false", true);
+#endif
+  }
+
+  HFTokenizer(const HFTokenizer&);
+  HFTokenizer(HFTokenizer&& other);
+
+  ~HFTokenizer();
+
+  // use i32 to be consistent with sentencepiece
+  std::vector<int32_t> Encode(const std::string& text, bool add_special_tokens);
+
+  // use i32 to be consistent with sentencepiece
+  std::vector<int32_t> Encode(const std::string& text) final;
+
+  std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts,
+                                                bool add_special_tokens);
+
+  std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts) final;
+
+  // use i32 to be consistent with sentencepiece
+  std::string Decode(const std::vector<int32_t>& ids, bool skip_special_tokens);
+
+  std::string Decode(const std::vector<int32_t>& ids) final;
+
+  size_t GetVocabSize() final;
+
+  std::string IdToToken(int32_t id) final;
+
+  int32_t TokenToId(const std::string& token) final;
+
+ private:
+  // internal handle
+  TokenizerHandle handle_{nullptr};
+};
+
 }  // namespace tokenizers
 #endif  // TOKENIZERS_CPP_H_
