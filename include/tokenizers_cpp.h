@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <tokenizers_c.h>
 namespace tokenizers {
 
 /*!
@@ -106,15 +106,9 @@ class Tokenizer {
   static std::unique_ptr<Tokenizer> FromBlobRWKVWorld(const std::string& model_blob);
 };
 
-#include <tokenizers_c.h>
-
 class HFTokenizer : public Tokenizer {
  public:
-  explicit HFTokenizer(TokenizerHandle handle) : handle_(handle) {
-#ifdef COMPILE_WASM_RUNTIME
-    setenv("TOKENIZERS_PARALLELISM", "false", true);
-#endif
-  }
+  explicit HFTokenizer(TokenizerHandle handle);
 
   HFTokenizer(const HFTokenizer&);
   HFTokenizer(HFTokenizer&& other);
