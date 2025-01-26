@@ -6,10 +6,11 @@
 #ifndef TOKENIZERS_CPP_H_
 #define TOKENIZERS_CPP_H_
 
+#include <tokenizers_c.h>
+
 #include <memory>
 #include <string>
 #include <vector>
-#include <tokenizers_c.h>
 namespace tokenizers {
 
 /*!
@@ -57,13 +58,14 @@ class Tokenizer {
   virtual size_t GetVocabSize() = 0;
 
   /*!
-   * \brief Convert the given id to its corresponding token if it exists. If not, return an
-   * empty string.
+   * \brief Convert the given id to its corresponding token if it exists. If
+   * not, return an empty string.
    */
   virtual std::string IdToToken(int32_t token_id) = 0;
 
   /*!
-   * \brief Convert the given token to its corresponding id if it exists. If not, return -1.
+   * \brief Convert the given token to its corresponding id if it exists. If
+   * not, return -1.
    */
   virtual int32_t TokenToId(const std::string& token) = 0;
 
@@ -125,6 +127,9 @@ class HFTokenizer : public Tokenizer {
   std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts,
                                                 bool add_special_tokens);
 
+  std::tuple<std::vector<std::vector<int32_t>>, std::vector<std::vector<int32_t>>>
+  EncodeBatchWithMask(const std::vector<std::string>& texts, bool add_special_tokens);
+
   std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts) final;
 
   // use i32 to be consistent with sentencepiece
@@ -138,7 +143,6 @@ class HFTokenizer : public Tokenizer {
 
   int32_t TokenToId(const std::string& token) final;
 
-
   /*!
    * \brief Create HF tokenizer from a single in-memory json blob.
    *
@@ -146,7 +150,7 @@ class HFTokenizer : public Tokenizer {
    * \return The created tokenzier.
    */
   static std::unique_ptr<HFTokenizer> FromBlobJSON(const std::string& json_blob);
-  
+
   /*!
    * \brief Create BPE tokenizer
    *
@@ -156,9 +160,8 @@ class HFTokenizer : public Tokenizer {
    * \return The created tokenizer.
    */
   static std::unique_ptr<HFTokenizer> FromBlobByteLevelBPE(const std::string& vocab_blob,
-                                                         const std::string& merges_blob,
-                                                         const std::string& added_tokens = "");
-
+                                                           const std::string& merges_blob,
+                                                           const std::string& added_tokens = "");
 
  private:
   // internal handle

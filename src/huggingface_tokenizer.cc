@@ -70,6 +70,41 @@ std::vector<std::vector<int32_t>> HFTokenizer::EncodeBatch(const std::vector<std
   return ret;
 }
 
+std::tuple<std::vector<std::vector<int32_t>>, std::vector<std::vector<int32_t>>>
+HFTokenizer::EncodeBatchWithMask(const std::vector<std::string>& texts, bool add_special_tokens) {
+  std::vector<const char*> texts_raw;
+  std::vector<size_t> seq_lens;
+  size_t num_seqs = texts.size();
+  texts_raw.reserve(num_seqs);
+  seq_lens.reserve(num_seqs);
+  for (const auto& text : texts) {
+    texts_raw.push_back(text.data());
+    seq_lens.push_back(text.length());
+  }
+  std::vector<TokenizerEncodeResult> results(num_seqs);
+  std::vector<TokenizerEncodeResult> masks(num_seqs);
+  tokenizers_encode_batch_with_mask(handle_, texts_raw.data(), seq_lens.data(), texts.size(),
+                                    static_cast<int>(add_special_tokens), results.data(),
+                                    masks.data());
+  // process the tokens:
+  std::vector<std::vector<int32_t>> ret_tokens;
+  ret_tokens.reserve(texts.size());
+  for (size_t i = 0; i < texts.size(); ++i) {
+    ret_tokens.push_back(
+        std::vector<int32_t>(results[i].token_ids, results[i].token_ids + results[i].len));
+  }
+  tokenizers_free_encode_results(results.data(), texts.size());
+  // process the masks:
+  std::vector<std::vector<int32_t>> ret_masks;
+  ret_masks.reserve(texts.size());
+  for (size_t i = 0; i < texts.size(); ++i) {
+    ret_masks.push_back(
+        std::vector<int32_t>(masks[i].token_ids, masks[i].token_ids + masks[i].len));
+  }
+  tokenizers_free_encode_results(masks.data(), texts.size());
+  return std::make_tuple(ret_tokens, ret_masks);
+}
+
 std::vector<std::vector<int32_t>> HFTokenizer::EncodeBatch(const std::vector<std::string>& texts) {
   return EncodeBatch(texts, false);
 }
@@ -108,7 +143,6 @@ int32_t HFTokenizer::TokenToId(const std::string& token) {
 
 // These are factory methods defined in the base class Tokenizer:
 
-
 std::unique_ptr<HFTokenizer> HFTokenizer::FromBlobJSON(const std::string& json) {
   return std::make_unique<HFTokenizer>(tokenizers_new_from_str(json.data(), json.length()));
 }
@@ -118,8 +152,8 @@ std::unique_ptr<Tokenizer> Tokenizer::FromBlobJSON(const std::string& json) {
 }
 
 std::unique_ptr<HFTokenizer> HFTokenizer::FromBlobByteLevelBPE(const std::string& vocab,
-                                                           const std::string& merges,
-                                                           const std::string& added_tokens) {
+                                                               const std::string& merges,
+                                                               const std::string& added_tokens) {
   return std::make_unique<HFTokenizer>(byte_level_bpe_tokenizers_new_from_str(
       vocab.data(), vocab.length(), merges.data(), merges.length(), added_tokens.data(),
       added_tokens.length()));
