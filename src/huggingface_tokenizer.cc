@@ -109,15 +109,26 @@ int32_t HFTokenizer::TokenToId(const std::string& token) {
 // These are factory methods defined in the base class Tokenizer:
 
 
-std::unique_ptr<Tokenizer> Tokenizer::FromBlobJSON(const std::string& json) {
+std::unique_ptr<HFTokenizer> HFTokenizer::FromBlobJSON(const std::string& json) {
   return std::make_unique<HFTokenizer>(tokenizers_new_from_str(json.data(), json.length()));
 }
 
-std::unique_ptr<Tokenizer> Tokenizer::FromBlobByteLevelBPE(const std::string& vocab,
+std::unique_ptr<Tokenizer> Tokenizer::FromBlobJSON(const std::string& json) {
+  return HFTokenizer::FromBlobJSON(json);
+}
+
+std::unique_ptr<HFTokenizer> HFTokenizer::FromBlobByteLevelBPE(const std::string& vocab,
                                                            const std::string& merges,
                                                            const std::string& added_tokens) {
   return std::make_unique<HFTokenizer>(byte_level_bpe_tokenizers_new_from_str(
       vocab.data(), vocab.length(), merges.data(), merges.length(), added_tokens.data(),
       added_tokens.length()));
 }
+
+std::unique_ptr<Tokenizer> Tokenizer::FromBlobByteLevelBPE(const std::string& vocab,
+                                                           const std::string& merges,
+                                                           const std::string& added_tokens) {
+  return HFTokenizer::FromBlobByteLevelBPE(vocab, merges, added_tokens);
+}
+
 }  // namespace tokenizers

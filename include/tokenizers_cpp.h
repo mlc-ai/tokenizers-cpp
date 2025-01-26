@@ -121,6 +121,7 @@ class HFTokenizer : public Tokenizer {
   // use i32 to be consistent with sentencepiece
   std::vector<int32_t> Encode(const std::string& text) final;
 
+  // version specific to HFTokenizer, which adds special tokens flag
   std::vector<std::vector<int32_t>> EncodeBatch(const std::vector<std::string>& texts,
                                                 bool add_special_tokens);
 
@@ -136,6 +137,28 @@ class HFTokenizer : public Tokenizer {
   std::string IdToToken(int32_t id) final;
 
   int32_t TokenToId(const std::string& token) final;
+
+
+  /*!
+   * \brief Create HF tokenizer from a single in-memory json blob.
+   *
+   * \param json_blob The json blob.
+   * \return The created tokenzier.
+   */
+  static std::unique_ptr<HFTokenizer> FromBlobJSON(const std::string& json_blob);
+  
+  /*!
+   * \brief Create BPE tokenizer
+   *
+   * \param vocab_blob The blob that contains vocabs.
+   * \param merges_blob The blob that contains the merges.
+   * \param added_tokens The added tokens.
+   * \return The created tokenizer.
+   */
+  static std::unique_ptr<HFTokenizer> FromBlobByteLevelBPE(const std::string& vocab_blob,
+                                                         const std::string& merges_blob,
+                                                         const std::string& added_tokens = "");
+
 
  private:
   // internal handle
