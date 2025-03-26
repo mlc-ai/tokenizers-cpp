@@ -90,11 +90,6 @@ endif ()
 get_filename_component(TOKENIZERS_CPP_ROOT ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
 set(TOKENIZERS_CPP_CARGO_SOURCE_PATH ${TOKENIZERS_CPP_ROOT}/rust)
 
-option(MSGPACK_USE_BOOST "Use Boost libraried" OFF)
-add_subdirectory(msgpack)
-
-option(MLC_ENABLE_SENTENCEPIECE_TOKENIZER "Enable SentencePiece tokenizer" ON)
-
 if(MSVC)
   set(TOKENIZERS_RUST_LIB "${TOKENIZERS_CPP_CARGO_BINARY_DIR}/tokenizers_c.lib")
 else()
@@ -119,36 +114,15 @@ add_custom_command(
 
 set(
   TOKENIZER_CPP_SRCS
-  src/sentencepiece_tokenizer.cc
   src/huggingface_tokenizer.cc
-  src/rwkv_world_tokenizer.cc
 )
 add_library(tokenizer_cpp_objs OBJECT ${TOKENIZER_CPP_SRCS})
-target_include_directories(tokenizer_cpp_objs PRIVATE sentencepiece/src)
-target_include_directories(tokenizer_cpp_objs PRIVATE msgpack/include)
 target_include_directories(tokenizer_cpp_objs PUBLIC ${TOKENIZERS_CPP_INCLUDE})
-if (MLC_ENABLE_SENTENCEPIECE_TOKENIZER STREQUAL "ON")
-  target_compile_definitions(tokenizer_cpp_objs PUBLIC MLC_ENABLE_SENTENCEPIECE_TOKENIZER)
-endif ()
-target_link_libraries(tokenizer_cpp_objs PRIVATE msgpack-cxx)
 
-# sentencepiece config
-option(SPM_ENABLE_SHARED "override sentence piece config" OFF)
-option(SPM_ENABLE_TCMALLOC "" OFF)
-# provide macro if it does not exist in cmake system
-# it is OK to skip those since we do not provide these apps in the ios
-# instead just link to the sentencepiece directly
-if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
-  macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
-      set_property (TARGET ${TARGET} PROPERTY
-          XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
-  endmacro (set_xcode_property)
-endif()
-add_subdirectory(sentencepiece sentencepiece EXCLUDE_FROM_ALL)
 
 add_library(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB})
 target_link_libraries(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB} ${TOKENIZERS_C_LINK_LIBS})
 
 add_library(tokenizers_cpp STATIC $<TARGET_OBJECTS:tokenizer_cpp_objs>)
-target_link_libraries(tokenizers_cpp PRIVATE tokenizers_c sentencepiece-static ${TOKENIZERS_CPP_LINK_LIBS})
+target_link_libraries(tokenizers_cpp PRIVATE tokenizers_c ${TOKENIZERS_CPP_LINK_LIBS} pthread)
 target_include_directories(tokenizers_cpp PUBLIC ${TOKENIZERS_CPP_INCLUDE})
