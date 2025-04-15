@@ -102,6 +102,25 @@ else()
 endif()
 set(TOKENIZERS_CPP_INCLUDE ${TOKENIZERS_CPP_ROOT}/include)
 
+# Find cargo executable
+if(CMAKE_HOST_WIN32)
+    set(USER_HOME "$ENV{USERPROFILE}")
+else()
+    set(USER_HOME "$ENV{HOME}")
+endif()
+if(NOT DEFINED CARGO_HOME)
+    if("$ENV{CARGO_HOME}" STREQUAL "")
+        set(CARGO_HOME "${USER_HOME}/.cargo")
+    else()
+        set(CARGO_HOME "$ENV{CARGO_HOME}")
+    endif()
+endif()
+
+find_program(CARGO_EXECUTABLE cargo
+ HINTS "${CARGO_HOME}"
+ PATH_SUFFIXES "bin")
+mark_as_advanced(CARGO_EXECUTABLE)
+
 # NOTE: need to use cmake -E env to be portable in win
 add_custom_command(
   OUTPUT ${TOKENIZERS_RUST_LIB}
@@ -110,7 +129,7 @@ add_custom_command(
   CARGO_TARGET_DIR=${TOKENIZERS_CPP_CARGO_TARGET_DIR}
   ${CARGO_EXTRA_ENVS}
   RUSTFLAGS="${TOKENIZERS_CPP_RUST_FLAGS}"
-  cargo build ${TOKENIZERS_CPP_CARGO_FLAGS}
+  ${CARGO_EXECUTABLE} build ${TOKENIZERS_CPP_CARGO_FLAGS}
   WORKING_DIRECTORY ${TOKENIZERS_CPP_CARGO_SOURCE_PATH}
   POST_BUILD COMMAND
   ${CMAKE_COMMAND} -E copy
@@ -123,14 +142,14 @@ set(
   src/huggingface_tokenizer.cc
   src/rwkv_world_tokenizer.cc
 )
-add_library(tokenizer_cpp_objs OBJECT ${TOKENIZER_CPP_SRCS})
-target_include_directories(tokenizer_cpp_objs PRIVATE sentencepiece/src)
-target_include_directories(tokenizer_cpp_objs PRIVATE msgpack/include)
-target_include_directories(tokenizer_cpp_objs PUBLIC ${TOKENIZERS_CPP_INCLUDE})
+add_library(tokenizers_cpp STATIC ${TOKENIZER_CPP_SRCS})
+target_include_directories(tokenizers_cpp PRIVATE sentencepiece/src)
+target_include_directories(tokenizers_cpp PRIVATE msgpack/include)
+target_include_directories(tokenizers_cpp PUBLIC ${TOKENIZERS_CPP_INCLUDE})
 if (MLC_ENABLE_SENTENCEPIECE_TOKENIZER STREQUAL "ON")
-  target_compile_definitions(tokenizer_cpp_objs PUBLIC MLC_ENABLE_SENTENCEPIECE_TOKENIZER)
+    target_compile_definitions(tokenizers_cpp PUBLIC MLC_ENABLE_SENTENCEPIECE_TOKENIZER)
 endif ()
-target_link_libraries(tokenizer_cpp_objs PRIVATE msgpack-cxx)
+target_link_libraries(tokenizers_cpp PRIVATE msgpack-cxx)
 
 # sentencepiece config
 option(SPM_ENABLE_SHARED "override sentence piece config" OFF)
@@ -149,6 +168,5 @@ add_subdirectory(sentencepiece sentencepiece EXCLUDE_FROM_ALL)
 add_library(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB})
 target_link_libraries(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB} ${TOKENIZERS_C_LINK_LIBS})
 
-add_library(tokenizers_cpp STATIC $<TARGET_OBJECTS:tokenizer_cpp_objs>)
 target_link_libraries(tokenizers_cpp PRIVATE tokenizers_c sentencepiece-static ${TOKENIZERS_CPP_LINK_LIBS})
 target_include_directories(tokenizers_cpp PUBLIC ${TOKENIZERS_CPP_INCLUDE})
