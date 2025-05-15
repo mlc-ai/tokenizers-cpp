@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 # --- Build ---
 New-Item -ItemType Directory -Force -Path "./build" | Out-Null
 Push-Location ./build
-cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake ..
 cmake --build .
 Pop-Location
 
