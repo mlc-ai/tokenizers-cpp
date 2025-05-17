@@ -7,9 +7,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(FetchContent)
 
+set(TOKENIZERS_CPP_MSVC_RUNTIME_LIBRARY "" CACHE STRING "MSVC runtime library setting (One of MT or MD)")
+
 # update to contain more rust flags
 set(TOKENIZERS_CPP_RUST_FLAGS "")
 set(TOKENIZERS_CPP_CARGO_TARGET "")
+
+if(MSVC)
+  if(TOKENIZERS_CPP_MSVC_RUNTIME_LIBRARY STREQUAL "MT")
+    list(APPEND TOKENIZERS_CPP_RUST_FLAGS -Ctarget-feature=+crt-static)
+  elseif(TOKENIZERS_CPP_MSVC_RUNTIME_LIBRARY STREQUAL "MD")
+    list(APPEND TOKENIZERS_CPP_RUST_FLAGS -Ctarget-feature=-crt-static)
+  elseif(TOKENIZERS_CPP_MSVC_RUNTIME_LIBRARY)
+    message(WARNING "Invalid value for TOKENIZERS_CPP_MSVC_RUNTIME_LIBRARY. Ignoring.")
+  endif()
+endif()
 
 # extra link libraries
 set(TOKENIZERS_CPP_LINK_LIBS "")
