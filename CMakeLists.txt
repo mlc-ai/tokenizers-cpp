@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.19...3.30)
 project(tokenizers_cpp C CXX)
 
+option(BUILD_SHARED_LIBS "Build tokenizers_cpp as a shared library" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -157,7 +159,12 @@ set(
   src/huggingface_tokenizer.cc
   src/rwkv_world_tokenizer.cc
 )
-add_library(tokenizers_cpp STATIC ${TOKENIZER_CPP_SRCS})
+
+if(BUILD_SHARED_LIBS)
+  add_library(tokenizers_cpp SHARED ${TOKENIZER_CPP_SRCS} src/static_exports.cc)
+else()
+  add_library(tokenizers_cpp STATIC ${TOKENIZER_CPP_SRCS})
+endif()
 target_include_directories(tokenizers_cpp PRIVATE sentencepiece/src)
 target_include_directories(tokenizers_cpp PRIVATE msgpack/include)
 target_include_directories(tokenizers_cpp PUBLIC ${TOKENIZERS_CPP_INCLUDE})
