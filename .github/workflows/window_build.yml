@@ -1,0 +1,35 @@
+name: "Build Test - Windows Meson"
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-2022, windows-2025 ]
+
+    name: Windows Meson build & test 
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: -${{ github.event.pull_request.commits }}
+      - name: Install submodules
+        run: git submodule sync && git submodule update --init --recursive
+      - name: Install Python Dependencies
+        run: pip install meson==1.7.2 ninja
+      - name: Prepare MSVC
+        uses: bus1/cabuild/action/msdevshell@v1
+        with:
+          architecture: x64
+      - name: Prepare Build
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make -j8
+          
