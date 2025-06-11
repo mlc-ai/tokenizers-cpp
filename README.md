@@ -28,6 +28,29 @@ You also need to turn on `c++17` support.
 
 See [example](example) folder for an example CMake project.
 
+### Build it as shared library
+You can also build this library as a standalone shared library.
+
+1. Initialize all submodules:
+  ```sh
+  git submodule update --init --recursive
+  ```
+2. Create and enter the build directory:
+  ```sh
+  mkdir -p build
+  cd build
+  ```
+3. Generate the CMake configuration:
+  ```sh
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+  ```
+4. Build the project:
+  ```sh
+  cmake --build . --config Release
+  ```
+
+When using the shared library, you can access the exported methods defined in `src/static_exports.cc`.
+
 ### Example Code
 
 ```c++
