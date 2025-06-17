@@ -103,7 +103,7 @@ void HuggingFaceTokenizerExample() {
 }
 
 void HuggingFaceBPETokenizerExample() {
-  std::cout << "Tokenizer: Huggingface" << std::endl;
+  std::cout << "Tokenizer: Huggingface BPE" << std::endl;
 
   auto start = std::chrono::high_resolution_clock::now();
 
