@@ -35,7 +35,6 @@ impl TokenizerWrapper {
         added_tokens: &str,
     ) -> TokenizerWrapper {
         let vocab_json: Value = serde_json::from_str(vocab).unwrap();
-        let added_tokens_json: Value = serde_json::from_str(added_tokens).unwrap();
         let mut vocab = HashMap::new();
         match vocab_json {
             Value::Object(m) => {
@@ -48,16 +47,19 @@ impl TokenizerWrapper {
             }
             _ => panic!("Invalid vocab.json file."),
         };
-        match added_tokens_json {
-            Value::Object(m) => {
-                for (token, id) in m {
-                    if let Value::Number(id) = id {
-                        let id = id.as_u64().unwrap() as u32;
-                        vocab.insert(token, id);
+        if (!added_tokens.is_empty()) {
+            let added_tokens_json: Value = serde_json::from_str(added_tokens).unwrap();
+            match added_tokens_json {
+                Value::Object(m) => {
+                    for (token, id) in m {
+                        if let Value::Number(id) = id {
+                            let id = id.as_u64().unwrap() as u32;
+                            vocab.insert(token, id);
+                        }
                     }
                 }
-            }
-            _ => panic!("Invalid added_tokens.json file."),
+                _ => panic!("Invalid added_tokens.json file."),
+            };
         }
 
         let merges = merges
