@@ -47,7 +47,7 @@ impl TokenizerWrapper {
             }
             _ => panic!("Invalid vocab.json file."),
         };
-        if (!added_tokens.is_empty()) {
+        if !added_tokens.is_empty() {
             let added_tokens_json: Value = serde_json::from_str(added_tokens).unwrap();
             match added_tokens_json {
                 Value::Object(m) => {
