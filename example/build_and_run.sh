@@ -20,6 +20,12 @@ if [ ! -f "tokenizer_model" ]; then
     wget https://github.com/BBuf/run-rwkv-world-4-in-mlc-llm/releases/download/v1.0.0/tokenizer_model.zip
     unzip tokenizer_model.zip
 fi
+if [ ! -f "vocab.json" ]; then
+    wget https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/resolve/main/vocab.json
+fi
+if [ ! -f "merges.txt" ]; then
+    wget https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/resolve/main/merges.txt
+fi
 cd ..
 
 # run

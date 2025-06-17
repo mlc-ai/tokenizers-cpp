@@ -102,6 +102,26 @@ void HuggingFaceTokenizerExample() {
   TestTokenizer(std::move(tok), false, true);
 }
 
+void HuggingFaceBPETokenizerExample() {
+  std::cout << "Tokenizer: Huggingface BPE" << std::endl;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  // Read blob from file.
+  auto vocab_blob = LoadBytesFromFile("dist/vocab.json");
+  auto merges_blob = LoadBytesFromFile("dist/merges.txt");
+  // Note: all the current factory APIs takes in-memory blob as input.
+  // This gives some flexibility on how these blobs can be read.
+  auto tok = Tokenizer::FromBlobByteLevelBPE(vocab_blob, merges_blob);
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+  std::cout << "Load time: " << duration << " ms" << std::endl;
+
+  TestTokenizer(std::move(tok), false, true);
+}
+
 // RWKV world tokenizer
 // - dist/tokenizer_model
 void RWKVWorldTokenizerExample() {
@@ -123,5 +143,6 @@ void RWKVWorldTokenizerExample() {
 int main(int argc, char* argv[]) {
   SentencePieceTokenizerExample();
   HuggingFaceTokenizerExample();
+  HuggingFaceBPETokenizerExample();
   RWKVWorldTokenizerExample();
 }
