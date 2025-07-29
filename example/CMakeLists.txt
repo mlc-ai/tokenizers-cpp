@@ -8,6 +8,7 @@ if(NOT MSVC)
   check_cxx_compiler_flag("-std=c++17" SUPPORT_CXX17)
   set(CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CUDA_STANDARD 17)
+  find_package(Threads REQUIRED)
 else()
   check_cxx_compiler_flag("/std:c++17" SUPPORT_CXX17)
   set(CMAKE_CXX_FLAGS "/std:c++17 ${CMAKE_CXX_FLAGS}")
@@ -24,4 +25,4 @@ target_include_directories(example PRIVATE ${TOKENZIER_CPP_PATH}/include)
 
 # You can link tokenizers_cpp, it will automatically link tokenizers_c
 # and sentencepiece libary
-target_link_libraries(example PRIVATE tokenizers_cpp)
+target_link_libraries(example PRIVATE tokenizers_cpp Threads::Threads)
