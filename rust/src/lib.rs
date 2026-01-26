@@ -94,12 +94,24 @@ impl TokenizerWrapper {
         return encoded.get_ids().to_vec();
     }
 
-    pub fn encode_batch(&mut self, texts: Vec<&str>, add_special_tokens: bool) -> Vec<Vec<u32>> {
-        let results = self.tokenizer.encode_batch(texts, add_special_tokens).unwrap()
-            .into_iter()
-            .map(|encoded| encoded.get_ids().to_vec())
+    pub fn encode_batch_with_mask(
+        &mut self,
+        texts: Vec<&str>,
+        add_special_tokens: bool,
+    ) -> (Vec<Vec<u32>>, Vec<Vec<u32>>) {
+        let encoded = self
+            .tokenizer
+            .encode_batch(texts, add_special_tokens)
+            .unwrap();
+        let tokens = encoded
+            .iter()
+            .map(|e| e.get_ids().to_vec())
             .collect::<Vec<Vec<u32>>>();
-        return results;
+        let attention_mask = encoded
+            .iter()
+            .map(|e| e.get_attention_mask().to_vec())
+            .collect::<Vec<Vec<u32>>>();
+        return (tokens, attention_mask);
     }
 
     pub fn decode(&mut self, ids: &[u32], skip_special_tokens: bool) {
@@ -172,10 +184,15 @@ extern "C" fn tokenizers_encode_batch(
     unsafe {
         let input_data = (0..num_seqs)
             .map(|i| {
-                std::str::from_utf8(std::slice::from_raw_parts(*input_cstr.offset(i as isize), *input_len.offset(i as isize))).unwrap()
+                std::str::from_utf8(std::slice::from_raw_parts(
+                    *input_cstr.offset(i as isize),
+                    *input_len.offset(i as isize),
+                ))
+                .unwrap()
             })
             .collect::<Vec<&str>>();
-        let encoded_batch = (*handle).encode_batch(input_data, add_special_tokens != 0);
+        let (encoded_batch, _encoded_masks) =
+            (*handle).encode_batch_with_mask(input_data, add_special_tokens != 0);
         for (i, encoded) in encoded_batch.into_iter().enumerate() {
             let len = encoded.len();
             let result = TokenizerEncodeResult {
@@ -188,11 +205,56 @@ extern "C" fn tokenizers_encode_batch(
 }
 
 #[no_mangle]
+extern "C" fn tokenizers_encode_batch_with_mask(
+    handle: *mut TokenizerWrapper,
+    input_cstr: *const *const u8,
+    input_len: *const usize,
+    num_seqs: usize,
+    add_special_tokens: i32,
+    out_result: *mut TokenizerEncodeResult,
+    out_mask: *mut TokenizerEncodeResult,
+) {
+    unsafe {
+        let input_data = (0..num_seqs)
+            .map(|i| {
+                std::str::from_utf8(std::slice::from_raw_parts(
+                    *input_cstr.offset(i as isize),
+                    *input_len.offset(i as isize),
+                ))
+                .unwrap()
+            })
+            .collect::<Vec<&str>>();
+        let (encoded_batch, encoded_mask) =
+            (*handle).encode_batch_with_mask(input_data, add_special_tokens != 0);
+
+        for (i, encoded) in encoded_batch.into_iter().enumerate() {
+            let len = encoded.len();
+            let result = TokenizerEncodeResult {
+                token_ids: Box::into_raw(encoded.into_boxed_slice()) as *mut u32,
+                len: len,
+            };
+            *out_result.offset(i as isize) = result;
+        }
+        for (i, encoded) in encoded_mask.into_iter().enumerate() {
+            let len = encoded.len();
+            let result = TokenizerEncodeResult {
+                token_ids: Box::into_raw(encoded.into_boxed_slice()) as *mut u32,
+                len: len,
+            };
+            *out_mask.offset(i as isize) = result;
+        }
+    }
+}
+
+#[no_mangle]
 extern "C" fn tokenizers_free_encode_results(results: *mut TokenizerEncodeResult, num_seqs: usize) {
     unsafe {
         let slice = std::slice::from_raw_parts_mut(results, num_seqs);
         for result in &mut *slice {
-            drop(Box::from_raw(std::slice::from_raw_parts_mut(result.token_ids, result.len)));
+            drop(Box::from_raw(std::slice::from_raw_parts_mut(
+                result.token_ids,
+                result.len,
+            )));
         }
     }
 }
