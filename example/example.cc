@@ -9,6 +9,7 @@
 using tokenizers::Tokenizer;
 
 std::string LoadBytesFromFile(const std::string& path) {
+  std::cout << "Loading " << path << std::endl;
   std::ifstream fs(path, std::ios::in | std::ios::binary);
   if (fs.fail()) {
     std::cerr << "Cannot open " << path << std::endl;
@@ -60,6 +61,7 @@ void TestTokenizer(std::unique_ptr<Tokenizer> tok, bool print_vocab = false,
   std::cout << std::endl;
 }
 
+#ifdef MLC_ENABLE_SENTENCEPIECE_TOKENIZER
 // Sentencepiece tokenizer
 // - dist/tokenizer.model
 void SentencePieceTokenizerExample() {
@@ -80,6 +82,7 @@ void SentencePieceTokenizerExample() {
 
   TestTokenizer(std::move(tok), false, true);
 }
+#endif
 
 // HF tokenizer
 // - dist/tokenizer.json
@@ -141,7 +144,9 @@ void RWKVWorldTokenizerExample() {
 }
 
 int main(int argc, char* argv[]) {
+#ifdef MLC_ENABLE_SENTENCEPIECE_TOKENIZER
   SentencePieceTokenizerExample();
+#endif
   HuggingFaceTokenizerExample();
   HuggingFaceBPETokenizerExample();
   RWKVWorldTokenizerExample();

@@ -113,6 +113,7 @@ option(MSGPACK_USE_BOOST "Use Boost libraried" OFF)
 add_subdirectory(msgpack)
 
 option(MLC_ENABLE_SENTENCEPIECE_TOKENIZER "Enable SentencePiece tokenizer" ON)
+message(DEBUG "MLC_ENABLE_SENTENCEPIECE_TOKENIZER= ${MLC_ENABLE_SENTENCEPIECE_TOKENIZER}")
 
 if(MSVC)
   set(TOKENIZERS_RUST_LIB "${TOKENIZERS_CPP_CARGO_BINARY_DIR}/tokenizers_c.lib")
@@ -157,16 +158,23 @@ add_custom_command(
 
 set(
   TOKENIZER_CPP_SRCS
-  src/sentencepiece_tokenizer.cc
   src/huggingface_tokenizer.cc
   src/rwkv_world_tokenizer.cc
 )
+if (${MLC_ENABLE_SENTENCEPIECE_TOKENIZER})
+  list(APPEND TOKENIZER_CPP_SRCS src/sentencepiece_tokenizer.cc)
+endif()
+
 add_library(tokenizers_cpp STATIC ${TOKENIZER_CPP_SRCS})
-target_include_directories(tokenizers_cpp PRIVATE sentencepiece/src)
+
+if (${MLC_ENABLE_SENTENCEPIECE_TOKENIZER})
+  target_include_directories(tokenizers_cpp PRIVATE sentencepiece/src)
+endif()
 target_include_directories(tokenizers_cpp PRIVATE msgpack/include)
 target_include_directories(tokenizers_cpp PUBLIC ${TOKENIZERS_CPP_INCLUDE})
-if (MLC_ENABLE_SENTENCEPIECE_TOKENIZER STREQUAL "ON")
-    target_compile_definitions(tokenizers_cpp PUBLIC MLC_ENABLE_SENTENCEPIECE_TOKENIZER)
+
+if (${MLC_ENABLE_SENTENCEPIECE_TOKENIZER})
+  target_compile_definitions(tokenizers_cpp PUBLIC MLC_ENABLE_SENTENCEPIECE_TOKENIZER)
 endif ()
 target_link_libraries(tokenizers_cpp PRIVATE msgpack-cxx)
 
@@ -182,10 +190,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
           XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
   endmacro (set_xcode_property)
 endif()
-add_subdirectory(sentencepiece sentencepiece EXCLUDE_FROM_ALL)
+if (${MLC_ENABLE_SENTENCEPIECE_TOKENIZER})
+  add_subdirectory(sentencepiece sentencepiece EXCLUDE_FROM_ALL)
+endif()
 
 add_library(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB})
 target_link_libraries(tokenizers_c INTERFACE ${TOKENIZERS_RUST_LIB} ${TOKENIZERS_C_LINK_LIBS})
-
-target_link_libraries(tokenizers_cpp PRIVATE tokenizers_c sentencepiece-static ${TOKENIZERS_CPP_LINK_LIBS})
+if (${MLC_ENABLE_SENTENCEPIECE_TOKENIZER})
+  set(SPLIB "sentencepiece-static")
+endif()
+target_link_libraries(tokenizers_cpp PRIVATE tokenizers_c ${SPLIB} ${TOKENIZERS_CPP_LINK_LIBS})
 target_include_directories(tokenizers_cpp PUBLIC ${TOKENIZERS_CPP_INCLUDE})

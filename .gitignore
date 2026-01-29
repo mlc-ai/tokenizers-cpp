@@ -27,6 +27,7 @@
 *.lib
 
 build
+release
 
 # Executables
 *.exe
