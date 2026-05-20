@@ -1,10 +1,19 @@
 #/bin/bash
-
+echo "Usage: $0 (ENABLE_SENTENCEPIECE_TOKENIZER default value 1=ON)"
 # build
 mkdir -p build
 cd build
-cmake ..
-make -j8
+echo
+echo "cmake ..."
+echo "CXX=$CXX"
+g++ --version
+
+ENABLESP=${1:-ON}
+
+cmake .. -DMLC_ENABLE_SENTENCEPIECE_TOKENIZER=$ENABLESP || exit 1
+echo
+echo "make..."
+make -j8 || exit 1
 cd ..
 # get example files
 
@@ -26,8 +35,9 @@ fi
 if [ ! -f "merges.txt" ]; then
     wget https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/resolve/main/merges.txt
 fi
+
 cd ..
 
 # run
 echo "---Running example----"
-./build/example
+./build/example || exit 1
